@@ -79,3 +79,22 @@ async function fetchData(query) {
 
 // Apply debounce to avoid repeated API calls
 input.addEventListener("input", debounce((event) => fetchData(event.target.value), 800));
+
+// Load new items when reaching the end of the page
+// Simulates loading new items when scrolling down
+function loadMoreContent() {
+    console.log("Loading more content...");
+    const newItem = document.createElement("p");
+    newItem.textContent = "New item loaded";
+    document.body.appendChild(newItem);
+}
+
+// Check if the user has reached the end of the page
+function checkScroll() {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        loadMoreContent();
+    }
+}
+
+// Applies throttle to the scroll event to avoid excessive executions
+window.addEventListener("scroll", throttle(checkScroll, 1500))
