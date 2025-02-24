@@ -66,3 +66,16 @@ function handleMouseMove(event) {
 
 // Applies throttle to mouse movement event
 document.addEventListener("mousemove", throttle(handleMouseMove, 300));
+
+// Simulates an API call
+async function fetchData(query) {
+    console.log(`Finding data for: ${query}`)
+
+    // Simulates an API response delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    console.log(`Data for ${query}`)
+}
+
+// Apply debounce to avoid repeated API calls
+input.addEventListener("input", debounce((event) => fetchData(event.target.value), 800));
