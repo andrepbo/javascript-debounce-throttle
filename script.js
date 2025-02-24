@@ -1,87 +1,93 @@
-// Throttle function: Executes the function at most once every defined time interval
+// Throttle function: Limits the execution of a function within a given time interval
 function throttle(func, limit) {
-    let lastFunc;
-    let lastTime;
+    let lastFunc, lastTime = 0;
     return function (...args) {
         const now = Date.now();
-        if (!lastTime || now - lastTime >= limit) {
+        if (now - lastTime >= limit) {
             func.apply(this, args);
             lastTime = now;
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(() => {
+                func.apply(this, args);
+                lastTime = Date.now();
+            }, limit - (now - lastTime));
         }
-    }
+    };
 }
 
-// Debounce function: Executes the function only after a period of inactivity
+// Debounce function: Executes a function only after a period of inactivity
 function debounce(func, delay) {
     let timeout;
     return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), delay);
-    }
+    };
 }
 
-// Simulated search function (would be a real request)
+// Simulated search function
 function searchQuery(query) {
-    console.log(`Searching for: ${query}`)
+    console.log(`Searching for: ${query}`);
 }
 
-// Function that will be called on scroll
+// Scroll event handler
 function handleScroll() {
-    console.log("Scroll detected in:", new Date().toLocaleDateString());
-    document.getElementById("scroll-status").innerText = `Last scroll ${new Date().toLocaleTimeString()}`;
+    console.log("Scroll detected at:", new Date().toLocaleTimeString());
+    document.getElementById("scroll-status").innerText = `Last scroll: ${new Date().toLocaleTimeString()}`;
 }
-// // Applies throttle to the scroll event
+
+// Throttle scroll event
 window.addEventListener("scroll", throttle(handleScroll, 1000));
 
-// Avoid multiple quick clicks on buttons
-// Function simulating an action when clicking the button
+// Debounce button click to prevent multiple fast clicks
 function handleDebounceClick() {
     console.log("Button clicked");
     document.getElementById("debounce-status").innerText = "Action executed";
 }
 
-// Debounce on button click
+// Attach event listener to button
 const debounceButton = document.getElementById("debounce-btn");
-debounceButton.addEventListener("click", debounce(handleDebounceClick, 1000));
+if (debounceButton) {
+    debounceButton.addEventListener("click", debounce(handleDebounceClick, 1000));
+}
 
-// Capture the input and apply the debounce
+// Capture input and apply debounce
 const input = document.getElementById("search");
-input.addEventListener("input", debounce((event) => searchQuery(event.target.value), 500))
+if (input) {
+    input.addEventListener("input", debounce((event) => searchQuery(event.target.value), 500));
+}
 
-// Throttle is to avoid constant executions when resizing the browser window
+// Throttle resize event
 function handleResize() {
-    console.log("Windows resized: ", window.innerWidth, "x", window.innerHeight);
+    console.log("Window resized:", window.innerWidth, "x", window.innerHeight);
     document.getElementById("page-resize").innerText = `Size: ${window.innerWidth} x ${window.innerHeight}`;
 }
 
-// Applies throttle to the resize event
 window.addEventListener("resize", throttle(handleResize, 500));
 
-// Throttle to avoid excessive calls when moving the mouse
-// Function that will be called when moving the mouse
+// Throttle mouse move event
 function handleMouseMove(event) {
     console.log("Mouse moved", event.clientX, event.clientY);
-    document.getElementById('mouse-move').innerText = `Mouse moved in: ${event.clientX}, ${event.clientY}`;
+    document.getElementById("mouse-move").innerText = `Mouse moved in: ${event.clientX}, ${event.clientY}`;
 }
 
-// Applies throttle to mouse movement event
 document.addEventListener("mousemove", throttle(handleMouseMove, 300));
 
-// Simulates an API call
+// Simulated API call with debounce
 async function fetchData(query) {
-    console.log(`Finding data for: ${query}`)
+    console.log(`Finding data for: ${query}`);
 
-    // Simulates an API response delay
+    // Simulated API delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    console.log(`Data for ${query}`)
+    console.log(`Data retrieved for ${query}`);
 }
 
-// Apply debounce to avoid repeated API calls
-input.addEventListener("input", debounce((event) => fetchData(event.target.value), 800));
+if (input) {
+    input.addEventListener("input", debounce((event) => fetchData(event.target.value), 800));
+}
 
-// Load new items when reaching the end of the page
-// Simulates loading new items when scrolling down
+// Load more content when reaching end of the page
 function loadMoreContent() {
     console.log("Loading more content...");
     const newItem = document.createElement("p");
@@ -89,12 +95,12 @@ function loadMoreContent() {
     document.body.appendChild(newItem);
 }
 
-// Check if the user has reached the end of the page
+// Check if user reached bottom of the page
 function checkScroll() {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
         loadMoreContent();
     }
 }
 
-// Applies throttle to the scroll event to avoid excessive executions
-window.addEventListener("scroll", throttle(checkScroll, 1500))
+// Apply throttle to scroll event for checking page end
+window.addEventListener("scroll", throttle(checkScroll, 1500));
